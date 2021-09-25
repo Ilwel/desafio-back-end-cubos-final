@@ -1,0 +1,25 @@
+{
+  "name": "Back",
+  "version": "1.0.0",
+  "description": "Repositório público do desafio final do curso de programação da Cubos Academy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ilwel/desafio-back-end-cubos-final.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ilwel/desafio-back-end-cubos-final/issues"
+  },
+  "homepage": "https://github.com/Ilwel/desafio-back-end-cubos-final#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
