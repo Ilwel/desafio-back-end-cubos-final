@@ -1,6 +1,7 @@
 const db = require('../utils/db');
-const { userSchema } = require('../utils/yupSchemas');
-const { createHash } = require('../utils/hashFunctions');
+const { userSchema, loginSchema } = require('../utils/yupSchemas');
+const { createHash, verifyHash } = require('../utils/hashFunctions');
+const { createToken } = require('../utils/tokenFunctions');
 
 const postRegistration = async (req, res) => {
 
@@ -38,8 +39,46 @@ const postRegistration = async (req, res) => {
   }
 }
 
+const postLogin = async (req, res) => {
+
+  const { email, password } = req.body;
+
+  try {
+
+    await loginSchema.validate(req.body);
+
+    const user = await db('users').where({ email }).first();
+    if (!user) {
+      throw {
+        status: 400,
+        message: 'email ou senha incorretos'
+      }
+    }
+
+    const isCorrectPW = await verifyHash(password, user.password);
+    if (!isCorrectPW) {
+      throw {
+        status: 400,
+        message: 'email ou senha incorretos'
+      }
+    }
+
+    const { password: pw, ...data } = user;
+    const token = createToken(user);
+
+    return res.status(200).json({ user: data, token });
+
+  } catch (error) {
+
+    return res.status(400 || error.status).json(error.message);
+
+  }
+
+}
+
 module.exports = {
 
   postRegistration,
+  postLogin,
 
 }
