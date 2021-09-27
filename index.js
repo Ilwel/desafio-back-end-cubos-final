@@ -7,4 +7,4 @@ app.use(express.json());
 app.use(router);
 
 const PORT = 8000;
-app.listen(PORT || process.env.PORT);
+app.listen(process.env.PORT || PORT);
