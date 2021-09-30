@@ -1,6 +1,6 @@
 const db = require('../utils/db');
 const { cpf: cpfValidator } = require('cpf-cnpj-validator');
-const { userSchema } = require('../utils/yupSchemas');
+const { userPutSchemaNameEmail, userPutSchemaPassword } = require('../utils/yupSchemas');
 const { createHash } = require('../utils/hashFunctions');
 
 const getProfile = (req, res) => {
@@ -16,7 +16,10 @@ const putProfile = async (req, res) => {
 
   try {
 
-    await userSchema.validate(req.body);
+    await userPutSchemaNameEmail.validate(req.body);
+    if (password) {
+      await userPutSchemaPassword.validate(req.body);
+    }
 
     if (cpf && !cpfValidator.isValid(cpf)) {
       throw {
@@ -35,13 +38,22 @@ const putProfile = async (req, res) => {
       }
     }
 
-    const hash = await createHash(password);
-
-    const userUpdate = await db('users').update({ name, email, password: hash, cpf, phone }).where({ id: user.id });
-    if (!userUpdate) {
-      throw {
-        status: 500,
-        message: 'não foi possível atualizar o cadastro'
+    if (password) {
+      const hash = await createHash(password);
+      const userUpdate = await db('users').update({ name, email, password: hash, cpf, phone }).where({ id: user.id });
+      if (!userUpdate) {
+        throw {
+          status: 500,
+          message: 'não foi possível atualizar o cadastro'
+        }
+      }
+    } else {
+      const userUpdate = await db('users').update({ name, email, cpf, phone }).where({ id: user.id });
+      if (!userUpdate) {
+        throw {
+          status: 500,
+          message: 'não foi possível atualizar o cadastro'
+        }
       }
     }
     return res.status(200).json('cadastro atualizado');
