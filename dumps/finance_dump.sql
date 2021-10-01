@@ -22,5 +22,6 @@ create table if not exists clients(
 	complement text, 
 	district text, 
 	city text, 
+	reference_point text,
 	state text
 );

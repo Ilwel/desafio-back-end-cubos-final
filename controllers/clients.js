@@ -4,7 +4,7 @@ const { clientSchema } = require('../utils/yupSchemas');
 
 const registerClient = async (req, res) => {
 
-  const { name, email, cpf, phone, zip_code, adress, complement, district, city, state } = req.body;
+  const { name, email, cpf, phone, zip_code, adress, complement, district, city, reference_point, state } = req.body;
 
   try {
 
@@ -28,7 +28,7 @@ const registerClient = async (req, res) => {
     }
 
     const clientRegistration = await db('clients')
-      .insert({ name, email, cpf, phone, zip_code, adress, complement, district, city, state });
+      .insert({ name, email, cpf, phone, zip_code, adress, complement, district, city, reference_point, state });
 
     if (clientRegistration.rowCount > 0) {
       return res.status(200).json('cliente cadastrado');
