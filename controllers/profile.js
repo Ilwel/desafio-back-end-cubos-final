@@ -28,7 +28,6 @@ const putProfile = async (req, res) => {
 
     if (cpf){
       finalCpf = replaceCpf(cpf);
-      req.body.cpf = finalCpf;
 
       if (!cpfValidator.isValid(finalCpf)) {
         throw {
@@ -40,8 +39,7 @@ const putProfile = async (req, res) => {
 
     if(phone){
       finalPhone = replacePhone(phone);
-      req.body.zip_code = finalPhone;
-
+      
       if (isNaN(finalPhone) || finalPhone.length != 11){
         throw {
           status: 400,

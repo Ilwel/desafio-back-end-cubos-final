@@ -34,8 +34,6 @@ const registerClient = async (req, res) => {
 
     if(zip_code){
       finalCep = replaceCep(zip_code);
-      req.body.zip_code = finalCep;
-      console.log(finalCep);
 
       if (finalCep.length != 8){
         throw {
