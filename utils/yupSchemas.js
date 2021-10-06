@@ -21,6 +21,12 @@ const userSchema = yup.object().shape({
     .required(),
 
 });
+ 
+const userSchemaCpf = yup.object().shape({
+  cpf: yup
+    .string()
+    .max(11),
+});
 
 const userPutSchemaNameEmail = yup.object().shape({
 
@@ -69,15 +75,17 @@ const clientSchema = yup.object().shape({
 
   cpf: yup
     .string()
-    .required(),
+    .required()
+    .max(11),
 
   phone: yup
     .string()
     .required(),
-})
+});
 
 module.exports = {
   userSchema,
+  userSchemaCpf,
   userPutSchemaNameEmail,
   userPutSchemaPassword,
   loginSchema,
