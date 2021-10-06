@@ -2,6 +2,7 @@ const db = require('../utils/db');
 const { cpf: cpfValidator } = require('cpf-cnpj-validator');
 const { userPutSchemaNameEmail, userPutSchemaPassword } = require('../utils/yupSchemas');
 const { createHash } = require('../utils/hashFunctions');
+const { replaceCpf, replacePhone} = require('../utils/replaceString');
 
 const getProfile = (req, res) => {
 
@@ -14,17 +15,38 @@ const putProfile = async (req, res) => {
   const { name, email, password, cpf, phone } = req.body;
   const { user } = req;
 
+  let finalCpf= cpf;
+  let finalPhone= phone;
+
   try {
 
     await userPutSchemaNameEmail.validate(req.body);
+
     if (password) {
       await userPutSchemaPassword.validate(req.body);
     }
 
-    if (cpf && !cpfValidator.isValid(cpf)) {
-      throw {
-        status: 400,
-        message: 'cpf inválido'
+    if (cpf){
+      finalCpf = replaceCpf(cpf);
+      req.body.cpf = finalCpf;
+
+      if (!cpfValidator.isValid(finalCpf)) {
+        throw {
+          status: 400,
+          message: 'cpf inválido'
+        }
+      }
+    }
+
+    if(phone){
+      finalPhone = replacePhone(phone);
+      req.body.zip_code = finalPhone;
+
+      if (isNaN(finalPhone) || finalPhone.length != 11){
+        throw {
+          status: 400,
+          message: 'telefone inválido'
+        }
       }
     }
 
@@ -40,7 +62,7 @@ const putProfile = async (req, res) => {
 
     if (password) {
       const hash = await createHash(password);
-      const userUpdate = await db('users').update({ name, email, password: hash, cpf, phone }).where({ id: user.id });
+      const userUpdate = await db('users').update({ name, email, password: hash, cpf: finalCpf, phone: finalPhone }).where({ id: user.id });
       if (!userUpdate) {
         throw {
           status: 500,
@@ -48,7 +70,7 @@ const putProfile = async (req, res) => {
         }
       }
     } else {
-      const userUpdate = await db('users').update({ name, email, cpf, phone }).where({ id: user.id });
+      const userUpdate = await db('users').update({ name, email, cpf: finalCpf, phone:finalPhone }).where({ id: user.id });
       if (!userUpdate) {
         throw {
           status: 500,
