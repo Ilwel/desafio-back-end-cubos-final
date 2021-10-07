@@ -21,6 +21,12 @@ const userSchema = yup.object().shape({
     .required(),
 
 });
+ 
+const userSchemaCpf = yup.object().shape({
+  cpf: yup
+    .string()
+    .max(11),
+});
 
 const userPutSchemaNameEmail = yup.object().shape({
 
@@ -32,7 +38,6 @@ const userPutSchemaNameEmail = yup.object().shape({
     .string()
     .email()
     .required(),
-
 
 });
 
@@ -69,17 +74,39 @@ const clientSchema = yup.object().shape({
 
   cpf: yup
     .string()
-    .required(),
+    .required()
+    .max(11),
 
   phone: yup
     .string()
     .required(),
-})
+
+});
+
+const chargeSchema = yup.object().shape({
+  description: yup
+    .string()
+    .required(),
+
+  paid: yup
+    .boolean()
+    .required(),
+  
+  value: yup
+    .number()
+    .required(),
+  
+  due_date: yup
+    .date()
+    .required()
+});
 
 module.exports = {
   userSchema,
+  userSchemaCpf,
   userPutSchemaNameEmail,
   userPutSchemaPassword,
   loginSchema,
-  clientSchema
+  clientSchema,
+  chargeSchema
 }

@@ -25,3 +25,14 @@ create table if not exists clients(
 	reference_point text,
 	state text
 );
+
+drop table if exists charges;
+
+create table if not exists charges(
+	id serial primary key,
+	client_id integer references clients(id) not null,
+	description text not null,
+	paid boolean not null,
+	value integer,
+	due_date date 
+);
