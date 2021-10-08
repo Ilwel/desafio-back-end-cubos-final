@@ -15,6 +15,10 @@ router.get('/profile', profile.getProfile);
 router.put('/profile', profile.putProfile);
 
 router.post('/client', clients.registerClient);
+router.put('/client', clients.putClient);
+router.get('/client', clients.listClient);
+router.get('/client/:id', clients.getOneClient);
+
 
 router.post('/charge', charges.registerCharge);
 router.get('/charge', charges.getCharges);
