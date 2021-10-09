@@ -1,6 +1,6 @@
 const db = require('../utils/db');
 const { cpf: cpfValidator } = require('cpf-cnpj-validator');
-const { userPutSchemaNameEmail, userPutSchemaPassword } = require('../utils/yupSchemas');
+const { userPutSchemaNameEmail, userPutSchemaPassword, userSchemaCpf } = require('../utils/yupSchemas');
 const { createHash } = require('../utils/hashFunctions');
 const { replaceCpf, replacePhone} = require('../utils/replaceString');
 
@@ -28,6 +28,8 @@ const putProfile = async (req, res) => {
 
     if (cpf){
       finalCpf = replaceCpf(cpf);
+      req.body.cpf = finalCpf;
+      await userSchemaCpf.validate(req.body);
 
       if (!cpfValidator.isValid(finalCpf)) {
         throw {
