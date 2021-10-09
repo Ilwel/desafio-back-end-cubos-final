@@ -84,6 +84,10 @@ const clientSchema = yup.object().shape({
 });
 
 const chargeSchema = yup.object().shape({
+  client_id: yup
+    .number()
+    .required(),
+
   description: yup
     .string()
     .required(),
