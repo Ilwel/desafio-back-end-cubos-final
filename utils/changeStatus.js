@@ -1,24 +1,45 @@
 const dateFns = require('date-fns');
 const db = require('./db');
 
-function changeStatus(clients) {
+function changeStatusCharges(charges) {
 
-  const clientStatus = clients.map(async (client) => {
-    const overdueCharges = db('charges')
-      .where({ paid: false, client_id: client.id })
-      .where('due_date', '<', new Date())
-      .count()
-      .first();
+  return charges.map(charge => {
+    const isDateAfter = dateFns.isAfter(charge.due_date, new Date());
+    const isDateBefore = dateFns.isBefore(charge.due_date, new Date());
 
-    if (overdueCharges.count > 0) {
-      client.status = 'inadimplente'
+    if (!charge.paid && isDateAfter) {
+      charge.status = 'pendente'
+    } else if (!charge.paid && isDateBefore) {
+      charge.status = 'vencido'
     } else {
-      client.status = 'em dia'
+      charge.status = 'pago'
     }
-
-    return client
+    delete charge.paid;
+    return charge
   })
-  return Promise.all(clientStatus);
+};
+
+async function changeStatus(clients) {
+
+  for (client of clients) {
+
+    const charges = await db('clients')
+      .join('charges', 'charges.client_id', 'clients.id')
+      .select('charges.id as charge_id', 'charges.description', 'charges.due_date', 'charges.value', 'charges.paid')
+      .where({ 'clients.id': client.id });
+
+    client.status = 'em dia'
+    for (charge of charges) {
+      const isDateBefore = dateFns.isBefore(charge.due_date, new Date());
+
+      if (!charge.paid && isDateBefore) {
+        client.status = 'inadimplente'
+        break;
+      }
+    }
+  }
+
+  return clients;
 };
 
 function changeStatusGetClient(charges) {
@@ -41,5 +62,6 @@ function changeStatusGetClient(charges) {
 
 module.exports = {
   changeStatus,
-  changeStatusGetClient
+  changeStatusGetClient,
+  changeStatusCharges
 };

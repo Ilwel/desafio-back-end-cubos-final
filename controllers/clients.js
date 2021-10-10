@@ -2,7 +2,7 @@ const db = require('../utils/db');
 const { clientSchema } = require('../utils/yupSchemas');
 const { replaceCpf, replacePhone, replaceCep } = require('../utils/replaceString');
 const { cpfValidation, phoneValidation, zipCodeValidation } = require('../utils/validations');
-const { changeStatus, changeStatusGetClient } = require('../utils/changeStatus');
+const { changeStatus, changeStatusGetClient, changeStatusCharges } = require('../utils/changeStatus');
 
 
 const registerClient = async (req, res) => {
@@ -173,7 +173,7 @@ const getOneClient = async (req, res) => {
       .select('charges.id as charge_id', 'charges.description', 'charges.due_date', 'charges.value', 'charges.paid')
       .where({ 'clients.id': id });
 
-    const charges = changeStatusGetClient(joinClientCharge);
+    const charges = changeStatusCharges(joinClientCharge);
 
     return res.status(200).json({ Client: getClient, Charges: charges });
 
