@@ -21,5 +21,7 @@ router.get('/client/:id', clients.getOneClient);
 
 router.post('/charge', charges.registerCharge);
 router.get('/charge', charges.getCharges);
+router.put('/charge/:id', charges.putCharge);
+router.delete('/charge/:id', charges.delCharge);
 
 module.exports = router;

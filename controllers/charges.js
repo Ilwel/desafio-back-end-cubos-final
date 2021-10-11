@@ -1,6 +1,5 @@
 const db = require('../utils/db');
 const { chargeSchema } = require('../utils/yupSchemas');
-const dateFns = require('date-fns');
 const { changeStatusCharges } = require('../utils/changeStatus');
 
 const registerCharge = async (req, res) => {
@@ -49,7 +48,69 @@ const getCharges = async (req, res) => {
 
 }
 
+const putCharge = async (req, res) => {
+  const { id } = req.params;
+  const { client_id, description, paid, value, due_date } = req.body;
+
+  try {
+
+    await chargeSchema.validate(req.body);
+
+    const updateCharge = await db('charges')
+      .update({ client_id, description, paid, value, due_date })
+      .where({ id });
+
+    if (!updateCharge) {
+      throw {
+        status: 500,
+        message: 'não foi possível atualizar a cobrança'
+      }
+    }
+    return res.status(200).json('cobrança atualizada');
+
+  } catch (error) {
+
+    return res.status(400 || error.status).json(error.message);
+  }
+
+};
+
+const delCharge = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+
+    const selectCharge = await db('charges').where({ id }).first();
+
+    if (!selectCharge) {
+
+      return res.status(404).json('cobrança não encontrada');
+    } else {
+
+      const selectCharge = await db('charges').select('paid').where({ id }).first();
+      const selectDueDate = await db('charges').select('due_date').where({ id }).first();
+
+      if (selectCharge.paid === false && selectDueDate.due_date >= new Date()) {
+
+        await db('charges').del().where({ id });
+
+        return res.status(200).json('cobrança excluída');
+        
+      } else {
+
+        return res.status(404).json(' a cobrança não pode ser excluída');
+      }
+    }
+
+  } catch (error) {
+
+    return res.status(400 || error.status).json(error.message);
+  }
+
+};
 module.exports = {
   registerCharge,
-  getCharges
+  getCharges,
+  putCharge,
+  delCharge
 }
