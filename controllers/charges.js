@@ -46,7 +46,7 @@ const getCharges = async (req, res) => {
     return res.status(400 || error.status).json(error.message);
   }
 
-}
+};
 
 const putCharge = async (req, res) => {
   const { id } = req.params;
@@ -108,9 +108,10 @@ const delCharge = async (req, res) => {
   }
 
 };
+
 module.exports = {
   registerCharge,
   getCharges,
   putCharge,
   delCharge
-}
+};

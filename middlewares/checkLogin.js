@@ -34,6 +34,6 @@ const checkLogin = async (req, res, next) => {
 
   }
 
-}
+};
 
 module.exports = checkLogin;

@@ -144,7 +144,6 @@ const listClient = async (req, res) => {
 
   try {
 
-
     const joinClientCharge = await db('clients')
       .leftJoin('charges', 'charges.client_id', 'clients.id')
       .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
