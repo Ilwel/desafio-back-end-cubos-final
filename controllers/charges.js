@@ -30,70 +30,78 @@ const registerCharge = async (req, res) => {
 };
 
 const getCharges = async (req, res) => {
-  const { client_id, cpf, email, id} = req.query;
+  const { client_id, cpf, email, id, name } = req.query;
 
   try {
-
-    if(client_id){
-      const findClient = await db('clients').where({id: client_id}).first();
-
-      if(!findClient){
-        return res.status(404).json('cliente não encontrado');
-
-      } else{
-
-        const clientIdQuery = await db('charges')
+    if (name) {
+      const clientNameQuery = await db('charges')
         .join('clients', 'charges.client_id', 'clients.id')
         .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
-        .where({ 'clients.id': client_id });
+        .orderBy('clients.name', 'asc');
+      const clientNameFilter = changeStatusCharges(clientNameQuery);
+      return res.status(200).json(clientNameFilter);
+    }
+
+    if (client_id) {
+      const findClient = await db('clients').where({ id: client_id }).first();
+
+      if (!findClient) {
+        return res.status(404).json('cliente não encontrado');
+
+      } else {
+
+        const clientIdQuery = await db('charges')
+          .join('clients', 'charges.client_id', 'clients.id')
+          .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
+          .where({ 'clients.id': client_id });
         const clientIdFilter = changeStatusCharges(clientIdQuery);
         return res.status(200).json(clientIdFilter);
       }
     }
 
-    if(cpf){
-      const findCpf = await db('clients').where({cpf}).first();
+    if (cpf) {
+      const findCpf = await db('clients').where({ cpf }).first();
 
-      if(!findCpf){
+      if (!findCpf) {
         return res.status(404).json('cpf não encontrado');
 
-      } else{
+      } else {
         const clientCpfQuery = await db('charges')
-        .join('clients', 'charges.client_id', 'clients.id')
-        .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
-        .where({ 'clients.cpf': cpf });
+          .join('clients', 'charges.client_id', 'clients.id')
+          .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
+          .where({ 'clients.cpf': cpf });
         const cpfFilter = changeStatusCharges(clientCpfQuery);
         return res.status(200).json(cpfFilter);
       }
     }
 
-    if(email){
-      const findEmail = await db('clients').where({email}).first();
+    if (email) {
+      const findEmail = await db('clients').where({ email }).first();
 
-      if(!findEmail){
+      if (!findEmail) {
         return res.status(404).json('email não encontrado');
 
-      } else{
+      } else {
         const clientEmailQuery = await db('charges')
-        .join('clients', 'charges.client_id', 'clients.id')
-        .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
-        .where({ 'clients.email': email });
+          .join('clients', 'charges.client_id', 'clients.id')
+          .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
+          .where({ 'clients.email': email });
         const emailFilter = changeStatusCharges(clientEmailQuery);
         return res.status(200).json(emailFilter);
       }
     }
 
-    if(id){
-      const findChargeId = await db('charges').where({id}).first();
+    if (id) {
+      const findChargeId = await db('charges').where({ id }).first();
 
-      if(!findChargeId){
+      if (!findChargeId) {
         return res.status(404).json('cobrança não encontrada');
 
-      } else{
+      } else {
         const chargeIdQuery = await db('charges')
-        .join('clients', 'charges.client_id', 'clients.id')
-        .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
-        .where({ 'charges.id': id });
+          .join('clients', 'charges.client_id', 'clients.id')
+          .select('charges.id as charge_id', 'clients.name', 'charges.description', 'charges.value', 'charges.paid', 'charges.due_date')
+          .where({ 'charges.id': id });
         const chargeIdFilter = changeStatusCharges(chargeIdQuery);
         return res.status(200).json(chargeIdFilter);
       }
@@ -161,7 +169,7 @@ const delCharge = async (req, res) => {
         await db('charges').del().where({ id });
 
         return res.status(200).json('cobrança excluída');
-        
+
       } else {
 
         return res.status(404).json(' a cobrança não pode ser excluída');

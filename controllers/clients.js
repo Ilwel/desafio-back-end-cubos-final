@@ -141,63 +141,75 @@ const putClient = async (req, res) => {
 };
 
 const listClient = async (req, res) => {
-  const { client_id, cpf, email, id} = req.query;
+  const { client_id, cpf, email, name } = req.query;
 
   try {
 
-    if(client_id){
-      const findClient = await db('clients').where({id: client_id}).first();
-
-      if(!findClient){
-        return res.status(404).json('cliente não encontrado');
-
-      } else{
-
-        const clientIdQuery = await db('clients')
+    if (name) {
+      const clientNameQuery = await db('clients')
         .leftJoin('charges', 'charges.client_id', 'clients.id')
         .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
           db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
           db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
-        .where({ 'clients.id': client_id })
-        .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id');
+        .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
+        .orderBy('clients.name', 'asc');
+      const clientNameFilter = await changeStatus(clientNameQuery);
+      return res.status(200).json(clientNameFilter);
+    }
+
+    if (client_id) {
+      const findClient = await db('clients').where({ id: client_id }).first();
+
+      if (!findClient) {
+        return res.status(404).json('cliente não encontrado');
+
+      } else {
+
+        const clientIdQuery = await db('clients')
+          .leftJoin('charges', 'charges.client_id', 'clients.id')
+          .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
+            db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
+            db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
+          .where({ 'clients.id': client_id })
+          .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id');
         const clientIdFilter = await changeStatus(clientIdQuery);
         return res.status(200).json(clientIdFilter);
       }
     }
 
-    if(cpf){
-      const findCpf = await db('clients').where({cpf}).first();
+    if (cpf) {
+      const findCpf = await db('clients').where({ cpf }).first();
 
-      if(!findCpf){
+      if (!findCpf) {
         return res.status(404).json('cpf não encontrado');
 
-      } else{
+      } else {
         const clientCpfQuery = await db('clients')
-        .leftJoin('charges', 'charges.client_id', 'clients.id')
-        .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
-          db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
-          db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
-        .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
-        .where({ 'clients.cpf': cpf });
+          .leftJoin('charges', 'charges.client_id', 'clients.id')
+          .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
+            db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
+            db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
+          .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
+          .where({ 'clients.cpf': cpf });
         const cpfFilter = await changeStatus(clientCpfQuery);
         return res.status(200).json(cpfFilter);
       }
     }
 
-    if(email){
-      const findEmail = await db('clients').where({email}).first();
+    if (email) {
+      const findEmail = await db('clients').where({ email }).first();
 
-      if(!findEmail){
+      if (!findEmail) {
         return res.status(404).json('email não encontrado');
 
-      } else{
+      } else {
         const clientEmailQuery = await db('clients')
-        .leftJoin('charges', 'charges.client_id', 'clients.id')
-        .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
-          db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
-          db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
-        .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
-        .where({ 'clients.email': email });
+          .leftJoin('charges', 'charges.client_id', 'clients.id')
+          .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
+            db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
+            db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
+          .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
+          .where({ 'clients.email': email });
         const emailFilter = await changeStatus(clientEmailQuery);
         return res.status(200).json(emailFilter);
       }
