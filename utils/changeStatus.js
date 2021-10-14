@@ -6,8 +6,9 @@ function changeStatusCharges(charges) {
   return charges.map(charge => {
     const isDateAfter = dateFns.isAfter(charge.due_date, new Date());
     const isDateBefore = dateFns.isBefore(charge.due_date, new Date());
-
-    if (!charge.paid && isDateAfter) {
+    const isDateEqual = dateFns.isEqual(charge.due_date, new Date());
+    
+    if (!charge.paid && !isDateEqual || !charge.paid && isDateAfter) {
       charge.status = 'pendente'
     } else if (!charge.paid && isDateBefore) {
       charge.status = 'vencido'
