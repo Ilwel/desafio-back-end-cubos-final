@@ -32,8 +32,11 @@ async function changeStatus(clients) {
     client.status = 'em dia'
     for (charge of charges) {
       const isDateBefore = dateFns.isBefore(charge.due_date, new Date());
+      const isDateSame = dateFns.isSameDay(charge.due_date, new Date());
 
-      if (!charge.paid && isDateBefore) {
+      if(isDateSame){
+        client.status = 'em dia'
+      } else if (!charge.paid && isDateBefore) {
         client.status = 'inadimplente'
         break;
       }
