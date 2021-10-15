@@ -37,7 +37,7 @@ const postRegistration = async (req, res) => {
     return res.status(400 || error.status).json(error.message);
 
   }
-}
+};
 
 const postLogin = async (req, res) => {
 
@@ -74,11 +74,9 @@ const postLogin = async (req, res) => {
 
   }
 
-}
+};
 
 module.exports = {
-
   postRegistration,
-  postLogin,
-
-}
+  postLogin
+};

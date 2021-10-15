@@ -16,7 +16,7 @@ function phoneValidation(str){
           message: 'telefone inválido'
         }
       } 
-}
+};
 
 function zipCodeValidation(str){
     if (str.length != 8){
@@ -25,8 +25,7 @@ function zipCodeValidation(str){
           message: 'cep inválido'
         }
       }
-}
-
+};
 
 module.exports = {
     cpfValidation,

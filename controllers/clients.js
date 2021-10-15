@@ -2,7 +2,7 @@ const db = require('../utils/db');
 const { clientSchema } = require('../utils/yupSchemas');
 const { replaceCpf, replacePhone, replaceCep } = require('../utils/replaceString');
 const { cpfValidation, phoneValidation, zipCodeValidation } = require('../utils/validations');
-const { changeStatus, changeStatusGetClient, changeStatusCharges } = require('../utils/changeStatus');
+const { changeStatus, changeStatusCharges } = require('../utils/changeStatus');
 
 
 const registerClient = async (req, res) => {
@@ -141,16 +141,40 @@ const putClient = async (req, res) => {
 };
 
 const listClient = async (req, res) => {
+  const { query = '', name } = req.query;
 
   try {
 
+    if (name) {
+      const clientNameQuery = await db('clients')
+        .leftJoin('charges', 'charges.client_id', 'clients.id')
+        .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
+          db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
+          db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
+        .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
+        .orderBy('clients.name', 'asc');
+      const clientNameFilter = await changeStatus(clientNameQuery);
+      return res.status(200).json(clientNameFilter);
+    }
 
-    const joinClientCharge = await db('clients')
+    const queryClients = db('clients')
       .leftJoin('charges', 'charges.client_id', 'clients.id')
       .select('clients.name', 'clients.email', 'clients.phone', 'clients.id',
         db.raw('sum(coalesce(charges.value, 0)) as made_charges'),
         db.raw('sum(case when charges.paid then coalesce(charges.value, 0) else 0 end) as received_charges'))
-      .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id');
+      .groupBy('clients.name', 'clients.email', 'clients.phone', 'clients.id')
+    if (query) {
+      queryClients
+        .where('clients.cpf', '=', query)
+        .orWhere('clients.email', '=', query)
+        .orWhereRaw(`LOWER(clients.name) = LOWER('${query}')`);
+    };
+
+    const joinClientCharge = await queryClients;
+
+    if (joinClientCharge.length === 0) {
+      return res.status(404).json('não encontrado');
+    }
 
     const clients = await changeStatus(joinClientCharge);
 
