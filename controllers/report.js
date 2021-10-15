@@ -51,7 +51,7 @@ const report = async (req, res) => {
 };
 
 const reportCharges = async (req, res) => {
-  const { previstas, vencidas, pagas } = req.query;
+  const { query = '' } = req.query;
 
   try {
     const queryCharge = db('charges')
@@ -62,11 +62,11 @@ const reportCharges = async (req, res) => {
 
     let charges = changeStatusCharges(queryReportCharge);
 
-    if(previstas){
+    if(query === 'previstas'){
       charges = charges.filter(charge => charge.status === 'pendente');
-    } else if (vencidas){
+    } else if (query === 'vencidas'){
       charges = charges.filter(charge => charge.status === 'vencido');
-    }else if (pagas){
+    }else if (query === 'pagas'){
       charges = charges.filter(charge => charge.status === 'pago');
     }
 
