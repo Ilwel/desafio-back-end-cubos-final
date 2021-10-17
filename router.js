@@ -22,6 +22,7 @@ router.get('/client/:id', clients.getOneClient);
 
 router.post('/charge', charges.registerCharge);
 router.get('/charge', charges.getCharges);
+router.get('/charge/:id', charges.getChargeById);
 router.put('/charge/:id', charges.putCharge);
 router.delete('/charge/:id', charges.delCharge);
 

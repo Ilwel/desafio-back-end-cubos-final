@@ -135,9 +135,35 @@ const delCharge = async (req, res) => {
 
 };
 
+const getChargeById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+
+    const selectCharge = await db('charges').where({ id }).first();
+
+    if (!selectCharge) {
+
+      return res.status(404).json('cobrança não encontrada');
+
+    } else {
+
+      res.status(200).json(selectCharge);
+
+    }
+
+  } catch (error) {
+
+    return res.status(400 || error.status).json(error.message);
+  }
+
+};
+
+
 module.exports = {
   registerCharge,
   getCharges,
   putCharge,
-  delCharge
+  delCharge,
+  getChargeById,
 };
