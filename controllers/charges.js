@@ -82,9 +82,20 @@ const putCharge = async (req, res) => {
 
     await chargeSchema.validate(req.body);
 
+    if(value){
+      if(value < 0 || !Number.isInteger(value)){
+        throw {
+          status: 400,
+          message: 'o valor não é válido'
+        }
+      }
+    }
+
     const updateCharge = await db('charges')
       .update({ client_id, description, paid, value, due_date })
       .where({ id });
+
+    if(number)
 
     if (!updateCharge) {
       throw {
