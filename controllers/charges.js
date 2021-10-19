@@ -82,8 +82,8 @@ const putCharge = async (req, res) => {
 
     await chargeSchema.validate(req.body);
 
-    if(value){
-      if(value < 0 || !Number.isInteger(value)){
+    if (value) {
+      if (value < 0 || !Number.isInteger(value)) {
         throw {
           status: 400,
           message: 'o valor não é válido'
@@ -94,7 +94,7 @@ const putCharge = async (req, res) => {
     const updateCharge = await db('charges')
       .update({ client_id, description, paid, value, due_date })
       .where({ id });
-      
+
     if (!updateCharge) {
       throw {
         status: 500,
@@ -125,7 +125,8 @@ const delCharge = async (req, res) => {
       const selectCharge = await db('charges').select('paid').where({ id }).first();
       const selectDueDate = await db('charges').select('due_date').where({ id }).first();
 
-      if (selectCharge.paid === false && selectDueDate.due_date >= new Date()) {
+
+      if (selectCharge.paid === false && selectDueDate.due_date >= new Date().setUTCHours(0)) {
 
         await db('charges').del().where({ id });
 
