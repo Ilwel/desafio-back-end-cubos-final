@@ -2,6 +2,7 @@ const db = require('../utils/db');
 const { chargeSchema } = require('../utils/yupSchemas');
 const { changeStatusCharges } = require('../utils/changeStatus');
 const { cpf: cpfValidator } = require('cpf-cnpj-validator');
+const { number } = require('yup/lib/locale');
 
 
 const registerCharge = async (req, res) => {
@@ -82,9 +83,17 @@ const putCharge = async (req, res) => {
 
     await chargeSchema.validate(req.body);
 
+    if(value){
+      if(value < 0 || !Number.isInteger(value)){
+        throw {
+          status: 400,
+          message: 'o valor não é válido'
+        }
+      }
+    }
+
     const updateCharge = await db('charges')
-      .update({ client_id, description, paid, value, due_date })
-      .where({ id });
+      .update({ client_id, description, paid, value, due_date });
 
     if (!updateCharge) {
       throw {
