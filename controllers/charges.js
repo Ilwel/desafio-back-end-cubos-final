@@ -2,7 +2,6 @@ const db = require('../utils/db');
 const { chargeSchema } = require('../utils/yupSchemas');
 const { changeStatusCharges } = require('../utils/changeStatus');
 const { cpf: cpfValidator } = require('cpf-cnpj-validator');
-const { number } = require('yup/lib/locale');
 
 
 const registerCharge = async (req, res) => {
@@ -93,7 +92,10 @@ const putCharge = async (req, res) => {
     }
 
     const updateCharge = await db('charges')
-      .update({ client_id, description, paid, value, due_date });
+      .update({ client_id, description, paid, value, due_date })
+      .where({ id });
+
+    if(number)
 
     if (!updateCharge) {
       throw {
