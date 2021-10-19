@@ -1,16 +1,19 @@
-const dateFns = require('date-fns');
+const dayJs = require('dayjs');
 const db = require('./db');
 
 function changeStatusCharges(charges) {
 
   return charges.map(charge => {
-    const isDateAfter = dateFns.isAfter(charge.due_date, new Date());
-    const isDateBefore = dateFns.isBefore(charge.due_date, new Date());
-    const isDateSame = dateFns.isSameDay(charge.due_date, new Date());
+    
+    const isDateAfter = dayJs().isAfter(charge.due_date, 'day');
+    const isDateBefore = dayJs().isBefore(charge.due_date, 'day');
+    const isDateSame = dayJs().isSame(charge.due_date, 'day');
 
-    if (!charge.paid && isDateSame || !charge.paid && isDateAfter) {
+    console.log()
+
+    if (!charge.paid && isDateSame || !charge.paid && isDateBefore) {
       charge.status = 'pendente'
-    } else if (!charge.paid && isDateBefore) {
+    } else if (!charge.paid && isDateAfter) {
       charge.status = 'vencido'
     } else {
       charge.status = 'pago'
@@ -31,13 +34,13 @@ async function changeStatus(clients) {
 
     client.status = 'em dia'
     for (charge of charges) {
-      const isDateBefore = dateFns.isBefore(charge.due_date, new Date());
-      const isDateSame = dateFns.isSameDay(charge.due_date, new Date());
+      const isDateBefore = dayJs().isBefore(charge.due_date, 'day');
+      const isDateSame = dayJs().isSame(charge.due_date, 'day');
       
 
       if(isDateSame){
         client.status = 'em dia'
-      } else if (!charge.paid && isDateBefore) {
+      } else if (!charge.paid && !isDateBefore) {
         client.status = 'inadimplente'
         break;
       }
